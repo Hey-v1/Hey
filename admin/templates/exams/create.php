@@ -52,8 +52,8 @@
                     
                     <div class="col-md-6">
                         <div class="mb-3 neo-form-group">
-                            <label for="course_id" class="form-label">الدورة <span class="text-danger">*</span></label>
-                            <select class="form-select neo-form-select" id="course_id" name="course_id" required>
+                            <label for="course_id" class="form-label">الدورة</label>
+                            <select class="form-select neo-form-select" id="course_id" name="course_id">
                                 <option value="">اختر الدورة</option>
                                 <?php foreach ($courses as $course): ?>
                                 <option value="<?php echo $course['id']; ?>" <?php echo (isset($form_data['course_id']) && $form_data['course_id'] == $course['id']) ? 'selected' : ''; ?>>
@@ -93,6 +93,54 @@
                                 <option value="published" <?php echo (isset($form_data['status']) && $form_data['status'] === 'published') ? 'selected' : ''; ?>>منشور</option>
                             </select>
                         </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4 mb-4">
+                    <h5>الدورات الموصى بها بعد الاختبار</h5>
+                    <p class="text-muted">اختر الدورات التي ترغب في توصيتها للمستخدمين بعد إكمال هذا الاختبار.</p>
+                    
+                    <div class="row">
+                        <?php
+                        // Get all courses
+                        global $conn;
+                        $recommended_courses = [];
+                        $all_courses = [];
+                        if ($conn) {
+                            $stmt = $conn->prepare("
+                                SELECT id, title, company_url
+                                FROM courses
+                                WHERE is_published = 1
+                                ORDER BY title
+                            ");
+                            $stmt->execute();
+                            $all_courses = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                        }
+                        
+                        if (!empty($all_courses)):
+                            foreach ($all_courses as $course):
+                        ?>
+                        <div class="col-md-4 mb-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="recommended_courses[]" value="<?php echo $course['id']; ?>" id="course_<?php echo $course['id']; ?>" <?php echo (isset($form_data['recommended_courses']) && in_array($course['id'], $form_data['recommended_courses'] ?? [])) ? 'checked' : ''; ?>>
+                                <label class="form-check-label" for="course_<?php echo $course['id']; ?>">
+                                    <?php echo htmlspecialchars($course['title']); ?>
+                                    <?php if (!empty($course['company_url'])): ?>
+                                    <small class="text-muted d-block"><?php echo htmlspecialchars($course['company_url']); ?></small>
+                                    <?php endif; ?>
+                                </label>
+                            </div>
+                        </div>
+                        <?php
+                            endforeach;
+                        else:
+                        ?>
+                        <div class="col-12">
+                            <div class="alert alert-info">
+                                لا توجد دورات متاحة للتوصية. يرجى إضافة دورات أولاً.
+                            </div>
+                        </div>
+                        <?php endif; ?>
                     </div>
                 </div>
                 

@@ -41,7 +41,7 @@
             unset($_SESSION['form_data']);
             
             // Get exam_id from query string or form data
-            $exam_id = isset($_GET['exam_id']) ? parseInt($_GET['exam_id']) : (isset($form_data['exam_id']) ? parseInt($form_data['exam_id']) : 0);
+            $exam_id = isset($_GET['exam_id']) ? (int)$_GET['exam_id'] : (isset($form_data['exam_id']) ? (int)$form_data['exam_id'] : 0);
             ?>
             
             <form action="/admin/questions/store" method="post" id="questionForm">
@@ -94,7 +94,7 @@
                             <div class="options-container">
                                 <?php
                                 $single_options = $form_data['options'] ?? [];
-                                $correct_option = isset($form_data['correct_option']) ? parseInt($form_data['correct_option']) : 0;
+                                $correct_option = isset($form_data['correct_option']) ? (int)$form_data['correct_option'] : 0;
                                 
                                 if (empty($single_options)) {
                                     $single_options = ['', '', '', ''];
@@ -107,7 +107,7 @@
                                         <div class="input-group-text">
                                             <input type="radio" name="correct_option" value="<?php echo $index; ?>" <?php echo ($correct_option === $index) ? 'checked' : ''; ?>>
                                         </div>
-                                        <input type="text" class="form-control" name="options[]" placeholder="الخيار <?php echo parseInt($index) + 1; ?>" value="<?php echo htmlspecialchars($option); ?>" required>
+                                        <input type="text" class="form-control" name="options[]" placeholder="الخيار <?php echo (int)$index + 1; ?>" value="<?php echo htmlspecialchars($option); ?>" required>
                                         <button type="button" class="btn btn-outline-danger remove-option">
                                             <i class="fas fa-times"></i>
                                         </button>
@@ -146,7 +146,7 @@
                                         <div class="input-group-text">
                                             <input type="checkbox" name="correct_options[]" value="<?php echo $index; ?>" <?php echo (in_array($index, $correct_options)) ? 'checked' : ''; ?>>
                                         </div>
-                                        <input type="text" class="form-control" name="options[]" placeholder="الخيار <?php echo parseInt($index) + 1; ?>" value="<?php echo htmlspecialchars($option); ?>" required>
+                                        <input type="text" class="form-control" name="options[]" placeholder="الخيار <?php echo (int)$index + 1; ?>" value="<?php echo htmlspecialchars($option); ?>" required>
                                         <button type="button" class="btn btn-outline-danger remove-option">
                                             <i class="fas fa-times"></i>
                                         </button>
@@ -181,7 +181,7 @@
                                         }
                                         
                                         foreach ($drag_items as $index => $item):
-                                            $item_number = parseInt($index) + 1;
+                                            $item_number = (int)$index + 1;
                                         ?>
                                         <div class="drag-item mb-2">
                                             <div class="input-group">
@@ -210,7 +210,7 @@
                                         }
                                         
                                         foreach ($drop_zones as $index => $zone):
-                                            $zone_number = parseInt($index) + 1;
+                                            $zone_number = (int)$index + 1;
                                         ?>
                                         <div class="drop-zone mb-2">
                                             <div class="input-group">
@@ -254,7 +254,7 @@
             
             const items = dragItemsContainer.querySelectorAll('.drag-item');
             items.forEach((item, index) => {
-                const itemNumber = parseInt(index) + 1;
+                const itemNumber = Number(index) + 1;
                 item.querySelector('input[type="text"]').placeholder = `العنصر ${itemNumber}`;
             });
         }
@@ -265,7 +265,7 @@
             
             const zones = dropZonesContainer.querySelectorAll('.drop-zone');
             zones.forEach((zone, index) => {
-                const zoneNumber = parseInt(index) + 1;
+                const zoneNumber = Number(index) + 1;
                 zone.querySelector('input[type="text"]').placeholder = `المنطقة ${zoneNumber}`;
             });
         }
@@ -315,7 +315,7 @@
                     <div class="input-group-text">
                         <input type="radio" name="correct_option" value="${optionCount}">
                     </div>
-                    <input type="text" class="form-control" name="options[]" placeholder="الخيار ${parseInt(optionCount) + 1}" required>
+                    <input type="text" class="form-control" name="options[]" placeholder="الخيار ${Number(optionCount) + 1}" required>
                     <button type="button" class="btn btn-outline-danger remove-option">
                         <i class="fas fa-times"></i>
                     </button>
@@ -369,7 +369,7 @@
                     <div class="input-group-text">
                         <input type="checkbox" name="correct_options[]" value="${optionCount}">
                     </div>
-                    <input type="text" class="form-control" name="options[]" placeholder="الخيار ${parseInt(optionCount) + 1}" required>
+                    <input type="text" class="form-control" name="options[]" placeholder="الخيار ${Number(optionCount) + 1}" required>
                     <button type="button" class="btn btn-outline-danger remove-option">
                         <i class="fas fa-times"></i>
                     </button>
@@ -422,7 +422,7 @@
             dragItem.className = 'drag-item mb-2';
             dragItem.innerHTML = `
                 <div class="input-group">
-                    <input type="text" class="form-control" name="drag_items[]" placeholder="العنصر ${parseInt(itemCount) + 1}" required>
+                    <input type="text" class="form-control" name="drag_items[]" placeholder="العنصر ${Number(itemCount) + 1}" required>
                     <button type="button" class="btn btn-outline-danger remove-drag-item">
                         <i class="fas fa-times"></i>
                     </button>
@@ -449,7 +449,7 @@
             dropZone.className = 'drop-zone mb-2';
             dropZone.innerHTML = `
                 <div class="input-group">
-                    <input type="text" class="form-control" name="drop_zones[]" placeholder="المنطقة ${parseInt(zoneCount) + 1}" required>
+                    <input type="text" class="form-control" name="drop_zones[]" placeholder="المنطقة ${Number(zoneCount) + 1}" required>
                     <button type="button" class="btn btn-outline-danger remove-drop-zone">
                         <i class="fas fa-times"></i>
                     </button>

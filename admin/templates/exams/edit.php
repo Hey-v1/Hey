@@ -52,8 +52,8 @@
                     
                     <div class="col-md-6">
                         <div class="mb-3 neo-form-group">
-                            <label for="course_id" class="form-label">الدورة <span class="text-danger">*</span></label>
-                            <select class="form-select neo-form-select" id="course_id" name="course_id" required>
+                            <label for="course_id" class="form-label">الدورة</label>
+                            <select class="form-select neo-form-select" id="course_id" name="course_id">
                                 <option value="">اختر الدورة</option>
                                 <?php foreach ($courses as $course): ?>
                                 <option value="<?php echo $course['id']; ?>" <?php echo (isset($form_data['course_id']) && $form_data['course_id'] == $course['id']) ? 'selected' : ''; ?>>

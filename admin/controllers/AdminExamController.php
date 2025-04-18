@@ -15,13 +15,25 @@ class AdminExamController {
         $exams = [];
         if ($conn) {
             $stmt = $conn->prepare("
-                SELECT e.*, c.title as course_title
+                SELECT e.*
                 FROM exams e
-                LEFT JOIN courses c ON e.course_id = c.id
                 ORDER BY e.created_at DESC
             ");
             $stmt->execute();
             $exams = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Get recommended courses for each exam
+            foreach ($exams as &$exam) {
+                $stmt = $conn->prepare("
+                    SELECT c.id, c.title
+                    FROM exam_course_recommendations ecr
+                    JOIN courses c ON ecr.course_id = c.id
+                    WHERE ecr.exam_id = ?
+                    ORDER BY ecr.priority
+                ");
+                $stmt->execute([$exam['id']]);
+                $exam['recommended_courses'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            }
         } else {
             // Sample data
             $exams = [
@@ -180,7 +192,7 @@ class AdminExamController {
         $duration = intval($_POST['duration'] ?? 0);
         $passing_score = intval($_POST['passing_score'] ?? 0);
         $status = $_POST['status'] ?? 'draft';
-        $course_id = intval($_POST['course_id'] ?? 0);
+        $course_id = !empty($_POST['course_id']) ? intval($_POST['course_id']) : null;
         
         $errors = [];
         
@@ -200,9 +212,6 @@ class AdminExamController {
             $errors[] = 'درجة النجاح يجب أن تكون بين 0 و 100';
         }
         
-        if ($course_id <= 0) {
-            $errors[] = 'يجب اختيار دورة للاختبار';
-        }
         
         if (!empty($errors)) {
             // Store errors in session
@@ -239,6 +248,26 @@ class AdminExamController {
                 ]);
                 
                 $exam_id = $conn->lastInsertId();
+                
+                // Handle recommended courses
+                if (isset($_POST['recommended_courses']) && is_array($_POST['recommended_courses'])) {
+                    $recommended_courses = $_POST['recommended_courses'];
+                    
+                    // Insert recommended courses
+                    $stmt = $conn->prepare("
+                        INSERT INTO exam_course_recommendations (exam_id, course_id, priority, created_at, updated_at)
+                        VALUES (?, ?, ?, NOW(), NOW())
+                    ");
+                    
+                    $priority = 1;
+                    foreach ($recommended_courses as $course_id) {
+                        $stmt->execute([
+                            $exam_id,
+                            (int)$course_id,
+                            $priority++
+                        ]);
+                    }
+                }
                 
                 // Set success message
                 setFlashMessage('تم إنشاء الاختبار بنجاح', 'success');
@@ -485,7 +514,7 @@ class AdminExamController {
         $duration = intval($_POST['duration'] ?? 0);
         $passing_score = intval($_POST['passing_score'] ?? 0);
         $status = $_POST['status'] ?? 'draft';
-        $course_id = intval($_POST['course_id'] ?? 0);
+        $course_id = !empty($_POST['course_id']) ? intval($_POST['course_id']) : null;
         
         $errors = [];
         
@@ -505,9 +534,6 @@ class AdminExamController {
             $errors[] = 'درجة النجاح يجب أن تكون بين 0 و 100';
         }
         
-        if ($course_id <= 0) {
-            $errors[] = 'يجب اختيار دورة للاختبار';
-        }
         
         if (!empty($errors)) {
             // Store errors in session

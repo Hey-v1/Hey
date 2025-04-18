@@ -18,14 +18,27 @@ class AdminQuestionController {
         $exam = null;
         if ($exam_id > 0) {
             if ($conn) {
+                // Get exam details
                 $stmt = $conn->prepare("
-                    SELECT e.*, c.title as course_title
+                    SELECT e.*
                     FROM exams e
-                    LEFT JOIN courses c ON e.course_id = c.id
                     WHERE e.id = ?
                 ");
                 $stmt->execute([$exam_id]);
                 $exam = $stmt->fetch(PDO::FETCH_ASSOC);
+                
+                // Get recommended courses for this exam
+                if ($exam) {
+                    $stmt = $conn->prepare("
+                        SELECT c.id, c.title
+                        FROM exam_course_recommendations ecr
+                        JOIN courses c ON ecr.course_id = c.id
+                        WHERE ecr.exam_id = ?
+                        ORDER BY ecr.priority
+                    ");
+                    $stmt->execute([$exam_id]);
+                    $exam['recommended_courses'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                }
             } else {
                 // Sample data
                 $exams = [
@@ -33,15 +46,17 @@ class AdminQuestionController {
                         'id' => 1,
                         'title' => 'CCNA Practice Exam 1',
                         'description' => 'Practice exam covering CCNA routing and switching topics.',
-                        'course_id' => 1,
-                        'course_title' => 'CCNA Certification'
+                        'recommended_courses' => [
+                            ['id' => 1, 'title' => 'CCNA Certification']
+                        ]
                     ],
                     2 => [
                         'id' => 2,
                         'title' => 'CCNA Practice Exam 2',
                         'description' => 'Advanced practice exam for CCNA certification.',
-                        'course_id' => 1,
-                        'course_title' => 'CCNA Certification'
+                        'recommended_courses' => [
+                            ['id' => 1, 'title' => 'CCNA Certification']
+                        ]
                     ]
                 ];
                 
@@ -266,7 +281,7 @@ class AdminQuestionController {
         $errors = [];
         
         if ($exam_id <= 0) {
-            $errors[] = 'يجب اختيار اختبار للسؤال';
+            $errors[] = 'يجب اختيار اختبار صالح للسؤال';
         }
         
         if (empty($question_text)) {

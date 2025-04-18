@@ -29,7 +29,7 @@
                         <tr>
                             <th>#</th>
                             <th>العنوان</th>
-                            <th>الدورة</th>
+                            <th>الدورات الموصى بها</th>
                             <th>المدة (دقيقة)</th>
                             <th>درجة النجاح</th>
                             <th>الحالة</th>
@@ -58,7 +58,18 @@
                                         <div class="text-muted small"><?php echo htmlspecialchars(substr($exam['description'], 0, 50) . (strlen($exam['description']) > 50 ? '...' : '')); ?></div>
                                     </div>
                                 </td>
-                                <td><?php echo htmlspecialchars($exam['course_title']); ?></td>
+                                <td>
+                                    <?php if (!empty($exam['recommended_courses'])): ?>
+                                        <?php 
+                                            $courseNames = array_map(function($course) {
+                                                return htmlspecialchars($course['title']);
+                                            }, $exam['recommended_courses']);
+                                            echo implode(', ', $courseNames);
+                                        ?>
+                                    <?php else: ?>
+                                        <span class="text-muted">لا توجد دورات موصى بها</span>
+                                    <?php endif; ?>
+                                </td>
                                 <td><?php echo isset($exam['duration']) ? $exam['duration'] : '30'; ?></td>
                                 <td><?php echo $exam['passing_score']; ?>%</td>
                                 <td>
