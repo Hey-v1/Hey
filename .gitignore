@@ -1,0 +1,14 @@
+# Log files
+logs/*.log
+server.log
+
+# Environment files
+.env
+
+# Temporary files
+tmp/
+temp/
+
+# IDE files
+.idea/
+.vscode/
